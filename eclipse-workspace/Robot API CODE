@@ -1,0 +1,91 @@
+*** Settings ***
+Library    RequestsLibrary
+Library    Collections
+Library    OperatingSystem
+Library    JSONLibrary
+Resource    C:\Work\blueyonder\api\robotframework\keywords\Keywords.robot
+
+*** Variables ***
+${baseurl}        https://reqres.in/
+
+
+
+
+
+*** Test Cases ***
+TC_001
+    Create Session    mySession    ${baseurl}
+    
+    ${response}=    GET On Session    mySession    /api/users 
+
+    Log To Console    ${response.status_code}
+    Log To Console    ${response.content}
+
+
+TC_002_POSTREQ
+     Create Session    mySession    ${baseurl}
+    ${body}=    Create Dictionary    name=morpheus    job=leader
+    ${response}=    POST On Session    mySession    /api/users    data=${body}    
+
+     Log To Console    ${response.status_code}
+     Log To Console    ${response.content}
+
+     ${statuscode}=    Convert To String    ${response.status_code}
+     Should Be Equal    ${statuscode}    201
+
+     ${resp_body}=    Convert To String    ${response.content}
+     Should Contain    ${resp_body}    morpheus
+
+
+
+TC_003_PUTREQ
+    Create Session    mySession    ${baseurl}
+    ${body}=    Create Dictionary    name=morpheus    job=zion resident
+    ${response}=    PUT On Session    mySession    /api/users/2    data=${body}
+     Log To Console    ${response.status_code}
+     Log To Console    ${response.content}
+
+      ${statuscode}=    Convert To String    ${response.status_code}
+     Should Be Equal    ${statuscode}    200
+
+      ${resp_body}=    Convert To String    ${response.content}
+     Should Contain    ${resp_body}    morpheus
+
+
+TC_004_POSTWITHEXTpayload
+    Create Session    mySession    ${baseurl}
+    ${data}=    Load Json From File    resources\\apipayload.json
+    ${response}=    POST On Session    mySession    /api/register    data=${data}
+     Log To Console    ${response.status_code}
+     Log To Console    ${response.content}
+
+     ${statuscode}=    Convert To String    ${response.status_code}
+     Should Be Equal    ${statuscode}    200
+
+      ${resp_body}=    Convert To String    ${response.content}
+     Should Contain    ${resp_body}    4
+
+
+
+TC_005_GETSINGLEUSER
+    Create Session    mySession    ${baseurl}
+     ${response}=    POST On Session    mySession    /api/users/2
+     Log To Console    ${response.status_code}
+     Log To Console    ${response.content}
+    
+    ${statuscode}=    Convert To String    ${response.status_code}
+     Should Be Equal    ${statuscode}    201
+
+      ${resp_body}=    Convert To String    ${response.content}
+     Should Contain    ${resp_body}    id
+
+
+
+TC_006_PATCHREQ
+    Create Session    mySession    ${baseurl}
+    ${response}=    PATCH On Session    mySession    /api/users/2
+    Log To Console    ${response.status_code}
+    Log To Console    ${response.content}
+
+    
+
